@@ -1,0 +1,56 @@
+
+#include <iostream>
+#include <random>
+#include <thread>
+#include <chrono>
+#include <vector>
+#include <mutex>
+using namespace std;
+
+mutex mtx;
+
+void BubbleSort(vector<double>& vec, int start, int end, const string& name) {
+    if (start >= end || end > vec.size()) {
+        std::cerr << "Ошибка: Некорректный диапазон!\n";
+        return;
+    }
+
+    for (int j = 0; j < end - start - 1; ++j) {
+        bool swapped = false; 
+        for (int i = start; i < end - 1 - j; ++i) {
+            if (vec[i] > vec[i + 1]) {
+                swap(vec[i], vec[i + 1]);
+                swapped = true;
+            }
+        }
+        if (!swapped) break; 
+    }
+    
+    for (int i = start; i < end; i++) {
+        this_thread::sleep_for(chrono::milliseconds(10));
+        mtx.lock();
+        cout << name << ": " << vec[i] << endl;
+        mtx.unlock();
+    }
+}
+
+int main(){
+    int n;
+    cout << "Введите n ";
+    cin >> n;
+    vector<double> p(n);
+    cout << " Start- Vector" << endl;
+    for (int i = 0; i < n; i++)
+    {
+        p[i] = (rand()%10000) / 100. ;
+        cout << p[i] << endl;
+    }
+    cout << endl;
+    thread thread1(BubbleSort, ref(p), 0, n / 2, " tthread1");
+    thread thread2(BubbleSort, ref(p), n / 2, n, " thread2");
+    thread1.join();
+    thread2.join();
+    thread thread3(BubbleSort, ref(p), 0, n, " thread3");
+    thread3.join();
+    cout << "\nMain thread finished" << endl;
+}  
